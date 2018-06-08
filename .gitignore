@@ -104,4 +104,5 @@ venv.bak/
 .mypy_cache/
 
 # datasets
-datasets/
+datasets/*.mp3
+datasets/*.wav

@@ -89,31 +89,32 @@ def preprocess(wave_data,alpha):
         y[i]=wave_data[i]-alpha*wave_data[i-1]
     return y
 
-def doFFT(data):
+def doFFT(data,NFFT):
     '''
     功能说明：
         对每一帧信号进行傅里叶变换，并对结果取实部的绝对值
+    参数说明：
+        data为所有信号帧
+        NFFT为傅里叶变换序列长度，若序列长度不够长，则在其之后补0
     返回值说明：
         返回每一帧信号的傅里叶变换序列
     '''
     row,column=(np.size(data,0),np.size(data,1))
-    f0=np.fft.fft(data[0]).real
-    retFFT=np.zeros((row,np.size(f0)))
-    retFFT[0]=np.abs(f0)
-    for i in range(1,row):
-        retFFT[i]=np.abs(np.fft.fft(data[i]).real)
+    retFFT=np.zeros((row,NFFT))
+    for i in range(row):
+        retFFT[i]=np.abs(np.fft.rfft(data[i],NFFT))
     return retFFT
 
 
 if __name__=='__main__':
-    sound=readfile('./datasets/01.wav')
+    sound=readfile('./datasets/OSR_us_000_0010_8k.wav')
     nframes=sound.getnframes()
     # print(nframes)
     framerate=sound.getframerate()
     str_data=sound.readframes(nframes)
     closefile(sound)
     wave_data=np.fromstring(str_data,dtype=np.short)
-    wave_data.shape=-1,2
+    wave_data.shape=-1,1
     wave_data=wave_data.T
     time=np.arange(0,nframes)*(1.0/framerate)
     pylab.subplot(411)
@@ -134,6 +135,6 @@ if __name__=='__main__':
     transformed=np.fft.fft(hamminged[50])
     pylab.plot(transformed)
     pylab.subplot(413)
-    FFT=doFFT(hamminged)
+    FFT=doFFT(hamminged,256)
     pylab.plot(FFT[50])
     pylab.show()
